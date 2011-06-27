@@ -32,7 +32,7 @@ class MTGox:
                         "_get_orders": ("POST", "/code/getOrders.php"),
                         "_cancel_order": ("POST", "/code/cancelOrder.php"),
                         "_withdraw": ("POST", "/code/withdraw.php")}
-        
+
         for action, (method, _) in self.actions.items():
             def _handler(action=action, **args):
                 return self._request(action, method=method, args=args)
@@ -81,7 +81,7 @@ class MTGox:
                 if "error" in data:
                     raise UserError(data["error"])
                 else:
-                    return data 
+                    return data
             else:
                 raise ServerError(content)
         except AttributeError, e: # 'NoneType' object has no attribute 'makefile'
@@ -100,7 +100,7 @@ class MTGox:
 
 class ExchB(MTGox):
     def __init__(self,user,password):
-	MTGox.__init__(self,user,password) 
+	MTGox.__init__(self,user,password)
         self.server = "www.exchangebitcoins.com"
         self.actions = {"_get_ticker": ("GET", "/data/ticker"),
                         "get_depth": ("GET", "/data/depth"),
@@ -110,6 +110,6 @@ class ExchB(MTGox):
                         "sell_btc": ("POST", "/data/sellBTC"),
                         "_get_orders": ("POST", "/data/getOrders"),
                         "_cancel_order": ("POST", "/data/cancelOrder")}
-        
-	
+
+
 
