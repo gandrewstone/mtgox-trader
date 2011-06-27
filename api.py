@@ -1,4 +1,5 @@
 
+from decimal import Decimal
 from httplib2 import Http
 import simplejson as json
 from urlparse import urlunparse
@@ -77,7 +78,7 @@ class MTGox:
             resp, content = h.request(url, method, headers=headers, body=data)
             #print "< %s (%s)" % (content, resp)
             if resp.status == 200:
-                data = json.loads(content)
+                data = json.loads(content, parse_float=Decimal)
                 if "error" in data:
                     raise UserError(data["error"])
                 else:
