@@ -1,6 +1,6 @@
 
 from httplib2 import Http
-import simplejson as json
+import json
 from urlparse import urlunparse
 from urllib import urlencode
 
@@ -110,6 +110,19 @@ class ExchB(MTGox):
                         "sell_btc": ("POST", "/data/sellBTC"),
                         "_get_orders": ("POST", "/data/getOrders"),
                         "_cancel_order": ("POST", "/data/cancelOrder")}
-        
+
+
+class TradeHill(MTGox):
+    def __init__(self,user,password):
+	MTGox.__init__(self,user,password)
+        self.server = "api.tradehill.com"
+        self.actions = {"_get_ticker": ("GET", "/APIv1/USD/Ticker"),
+                        "get_depth": ("GET", "/APIv1/USD/Orderbook"),
+                        "get_trades": ("GET", "/APIv1/USD/Trades"),
+                        "get_balance": ("POST", "/APIv1/USD/GetBalance"),
+                        "buy_btc": ("POST", "/APIv1/USD/BuyBTC"),
+                        "sell_btc": ("POST", "/APIv1/USD/SellBTC"),
+                        "_get_orders": ("POST", "/APIv1/USD/GetOrders"),
+                        "_cancel_order": ("POST", "/APIv1/USD/CancelOrder")}
 	
 

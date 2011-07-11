@@ -14,6 +14,10 @@ EXCHB_PASSWORD = 'your_password'
 MTGOX_USER = 'your_username'
 MTGOX_PASSWORD = 'your_password'
 
+TRADEHILL_USER = 'your_username'
+TRADEHILL_PASSWORD = 'your_password'
+
 # uncomment the exchange you want to use
 #exchange = ExchB(user=EXCHB_USER, password=EXCHB_PASSWORD)
-exchange = MTGox(user=MTGOX_USER, password=MTGOX_PASSWORD)
+#exchange = MTGox(user=MTGOX_USER, password=MTGOX_PASSWORD)
+exchange = TradeHill(user=TRADEHILL_USER, password=TRADEHILL_PASSWORD)
