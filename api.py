@@ -23,19 +23,19 @@ class MTGox:
         self.password = password
         self.server = "mtgox.com"
         self.timeout = 10
-        self.actions = {"_get_ticker": ("GET", "VALID", "/code/data/ticker.php"),
-                        "get_depth": ("GET", "VALID", "/code/data/getDepth.php"),
-                        "get_trades": ("GET", "VALID", "/code/data/getTrades.php"),
-                        "get_balance": ("POST", "VALID", "/code/getFunds.php"),
-                        "buy_btc": ("POST", "VALID", "/code/buyBTC.php"),
-                        "sell_btc": ("POST", "VALID", "/code/sellBTC.php"),
-                        "_get_orders": ("POST", "VALID", "/code/getOrders.php"),
-                        "_cancel_order": ("POST", "VALID", "/code/cancelOrder.php"),
-                        "_withdraw": ("POST", "VALID", "/code/withdraw.php")}
-        
-        for action, (method, ssl, _) in self.actions.items():
+        self.actions = {"_get_ticker": ("GET", "/code/data/ticker.php"),
+                        "get_depth": ("GET", "/code/data/getDepth.php"),
+                        "get_trades": ("GET", "/code/data/getTrades.php"),
+                        "get_balance": ("POST", "/code/getFunds.php"),
+                        "buy_btc": ("POST", "/code/buyBTC.php"),
+                        "sell_btc": ("POST", "/code/sellBTC.php"),
+                        "_get_orders": ("POST", "/code/getOrders.php"),
+                        "_cancel_order": ("POST", "/code/cancelOrder.php"),
+                        "_withdraw": ("POST", "/code/withdraw.php")}
+        self.sslvalid = "VALID"
+        for action, (method, _) in self.actions.items():
             def _handler(action=action, **args):
-                return self._request(action, method=method, ssl=ssl, args=args)
+                return self._request(action, method=method, args=args)
             setattr(self, action, _handler)
 
     def get_ticker(self):
@@ -58,10 +58,14 @@ class MTGox:
     def withdraw(self, amount, btca, group1="BTC"):
         return self._withdraw(amount=amount, btca=btca, group1=group1)["status"] # can also return balance
 
-    def _request(self, action, method="GET", ssl="VALID", args={}):
+    def _request(self, action, method="GET", sslvalid="VALID", args={}):
         query = args.copy()
         data = None
         headers = {}
+        if sslvalid == "VALID":
+            h = Http(cache=None, timeout=self.timeout)
+        if sslvalid == "INVALID":
+            h = Http(cache=None, timeout=self.timeout, disable_ssl_certificate_validation=True)
         if method == "GET":
             url = self._url(action)
         if method == "POST":
@@ -70,16 +74,13 @@ class MTGox:
             query["pass"] = self.password
             data = urlencode(query)
             headers['Content-type'] = 'application/x-www-form-urlencoded'
-        if ssl == "VALID":
-            h = Http(cache=None, timeout=self.timeout)
-        if ssl == "INVALID":
-            h = Http(cache=None, timeout=self.timeout, disable_ssl_certificate_validation=True)
+
 
 
         try:
-            #print "%s %s\n> |%s|" % (method, url, data)
+            print "%s %s\n> |%s|" % (method, url, data)
             resp, content = h.request(url, method, headers=headers, body=data)
-            #print "< %s (%s)" % (content, resp)
+            print "< %s (%s)" % (content, resp)
             if resp.status == 200:
                 data = json.loads(content)
                 if "error" in data:
@@ -106,27 +107,28 @@ class ExchB(MTGox):
     def __init__(self,user,password):
 	MTGox.__init__(self,user,password) 
         self.server = "www.exchangebitcoins.com"
-        self.actions = {"_get_ticker": ("GET", "VALID", "/data/ticker"),
-                        "get_depth": ("GET", "VALID", "/data/depth"),
-                        "get_trades": ("GET", "VALID", "/data/recent"),
-                        "get_balance": ("POST", "VALID", "/data/getFunds"),
-                        "buy_btc": ("POST", "VALID", "/data/buyBTC"),
-                        "sell_btc": ("POST", "VALID", "/data/sellBTC"),
-                        "_get_orders": ("POST", "VALID", "/data/getOrders"),
-                        "_cancel_order": ("POST", "VALID", "/data/cancelOrder")}
-
+        self.actions = {"_get_ticker": ("GET", "/data/ticker"),
+                        "get_depth": ("GET", "/data/depth"),
+                        "get_trades": ("GET", "/data/recent"),
+                        "get_balance": ("POST", "/data/getFunds"),
+                        "buy_btc": ("POST", "/data/buyBTC"),
+                        "sell_btc": ("POST", "/data/sellBTC"),
+                        "_get_orders": ("POST", "/data/getOrders"),
+                        "_cancel_order": ("POST", "/data/cancelOrder")}
+        self.sslvalid = "VALID"
 
 class TradeHill(MTGox):
     def __init__(self,user,password):
 	MTGox.__init__(self,user,password)
         self.server = "api.tradehill.com"
-        self.actions = {"_get_ticker": ("GET", "INVALID", "/APIv1/USD/Ticker",),
-                        "get_depth": ("GET", "INVALID" "/APIv1/USD/Orderbook",),
-                        "get_trades": ("GET", "INVALID", "/APIv1/USD/Trades"),
-                        "get_balance": ("POST", "INVALID", "/APIv1/USD/GetBalance"),
-                        "buy_btc": ("POST", "INVALID", "/APIv1/USD/BuyBTC"),
-                        "sell_btc": ("POST", "INVALID", "/APIv1/USD/SellBTC"),
-                        "_get_orders": ("POST", "INVALID", "/APIv1/USD/GetOrders"),
-                        "_cancel_order": ("POST", "INVALID", "/APIv1/USD/CancelOrder")}
+        self.actions = {"_get_ticker": ("GET", "/APIv1/USD/Ticker",),
+                        "get_depth": ("GET", "/APIv1/USD/Orderbook",),
+                        "get_trades": ("GET", "/APIv1/USD/Trades"),
+                        "get_balance": ("POST", "/APIv1/USD/GetBalance"),
+                        "buy_btc": ("POST", "/APIv1/USD/BuyBTC"),
+                        "sell_btc": ("POST", "/APIv1/USD/SellBTC"),
+                        "_get_orders": ("POST", "/APIv1/USD/GetOrders"),
+                        "_cancel_order": ("POST", "/APIv1/USD/CancelOrder")}
+        self.sslvalid = "INVALID"
 	
 
