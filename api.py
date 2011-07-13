@@ -58,13 +58,13 @@ class MTGox:
     def withdraw(self, amount, btca, group1="BTC"):
         return self._withdraw(amount=amount, btca=btca, group1=group1)["status"] # can also return balance
 
-    def _request(self, action, method="GET", sslvalid="VALID", args={}):
+    def _request(self, action, method="GET", args={}):
         query = args.copy()
         data = None
         headers = {}
-        if sslvalid == "VALID":
+        if self.sslvalid == "VALID":
             h = Http(cache=None, timeout=self.timeout)
-        if sslvalid == "INVALID":
+        if self.sslvalid == "INVALID":
             h = Http(cache=None, timeout=self.timeout, disable_ssl_certificate_validation=True)
         if method == "GET":
             url = self._url(action)
