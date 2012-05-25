@@ -1,7 +1,7 @@
 
 from decimal import Decimal
 from httplib2 import Http
-import simplejson as json
+import json
 from urlparse import urlunparse
 from urllib import urlencode
 
@@ -33,7 +33,7 @@ class MTGox:
                         "_get_orders": ("POST", "/code/getOrders.php"),
                         "_cancel_order": ("POST", "/code/cancelOrder.php"),
                         "_withdraw": ("POST", "/code/withdraw.php")}
-
+        self.sslvalid = "VALID"
         for action, (method, _) in self.actions.items():
             def _handler(action=action, **args):
                 return self._request(action, method=method, args=args)
@@ -63,6 +63,10 @@ class MTGox:
         query = args.copy()
         data = None
         headers = {}
+        if self.sslvalid == "VALID":
+            h = Http(cache=None, timeout=self.timeout)
+        if self.sslvalid == "INVALID":
+            h = Http(cache=None, timeout=self.timeout, disable_ssl_certificate_validation=True)
         if method == "GET":
             url = self._url(action)
         if method == "POST":
@@ -72,11 +76,12 @@ class MTGox:
             data = urlencode(query)
             headers['Content-type'] = 'application/x-www-form-urlencoded'
 
-        h = Http(cache=None, timeout=self.timeout)
+
+
         try:
-            #print "%s %s\n> |%s|" % (method, url, data)
+            print "%s %s\n> |%s|" % (method, url, data)
             resp, content = h.request(url, method, headers=headers, body=data)
-            #print "< %s (%s)" % (content, resp)
+            print "< %s (%s)" % (content, resp)
             if resp.status == 200:
                 data = json.loads(content, parse_float=Decimal)
                 if "error" in data:
@@ -111,6 +116,20 @@ class ExchB(MTGox):
                         "sell_btc": ("POST", "/data/sellBTC"),
                         "_get_orders": ("POST", "/data/getOrders"),
                         "_cancel_order": ("POST", "/data/cancelOrder")}
+        self.sslvalid = "VALID"
 
-
+class TradeHill(MTGox):
+    def __init__(self,user,password):
+	MTGox.__init__(self,user,password)
+        self.server = "api.tradehill.com"
+        self.actions = {"_get_ticker": ("GET", "/APIv1/USD/Ticker",),
+                        "get_depth": ("GET", "/APIv1/USD/Orderbook",),
+                        "get_trades": ("GET", "/APIv1/USD/Trades"),
+                        "get_balance": ("POST", "/APIv1/USD/GetBalance"),
+                        "buy_btc": ("POST", "/APIv1/USD/BuyBTC"),
+                        "sell_btc": ("POST", "/APIv1/USD/SellBTC"),
+                        "_get_orders": ("POST", "/APIv1/USD/GetOrders"),
+                        "_cancel_order": ("POST", "/APIv1/USD/CancelOrder")}
+        self.sslvalid = "INVALID"
+	
 
